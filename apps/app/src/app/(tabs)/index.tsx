@@ -8,7 +8,7 @@ import { authClient } from "@/src/lib/auth-client";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { Link, Redirect, useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Pressable } from "react-native";
 import { queryClient } from "../_layout";
 
@@ -16,17 +16,28 @@ export default function Mails() {
 	const router = useRouter();
 	const { data: session } = authClient.useSession();
 	const [modalVisible, setModalVisible] = useState(false);
+	const [currentAddress, setCurrentAddress] = useState<string | undefined>();
 
 	// Only fetch addresses if we have a session
-	const { data: addresses, isLoading: isAddressesLoading, error } = useAddresses(
-		session?.user?.id ?? "",
-	);
+	const {
+		data: addresses,
+		isLoading: isAddressesLoading,
+		error,
+	} = useAddresses(session?.user?.id ?? "");
 
 	// Only fetch emails if we have addresses
-	const { data: emails, isLoading: isEmailsLoading, error: errorEmails, refetch: refetchEmails } = useEmails(
-		addresses?.[0]?.id ?? "",
-		session?.user?.id ?? "",
-	);
+	const {
+		data: emails,
+		isLoading: isEmailsLoading,
+		error: errorEmails,
+		refetch: refetchEmails,
+	} = useEmails(currentAddress ?? "", session?.user?.id ?? "");
+
+	useEffect(() => {
+		if (currentAddress) {
+			refetchEmails();
+		}
+	}, [currentAddress, refetchEmails]);
 
 	// Early return if no session
 	if (!session) {
@@ -36,7 +47,7 @@ export default function Mails() {
 	if (error) {
 		return <Text>Error: {error.message}</Text>;
 	}
-	
+
 	if (!addresses && isAddressesLoading) {
 		return <Text>Loading...</Text>;
 	}
@@ -46,6 +57,10 @@ export default function Mails() {
 	}
 	if (addresses.length === 0) {
 		return <Redirect href="/(tabs)/addresses/create" />;
+	}
+
+	if (!currentAddress) {
+		setCurrentAddress(addresses[0].email);
 	}
 
 	if (errorEmails) {
@@ -74,6 +89,7 @@ export default function Mails() {
 			>
 				{modalVisible && (
 					<GlurryModal
+						setCurrentAddress={setCurrentAddress}
 						addresses={addresses || []}
 						onClose={() => setModalVisible(false)}
 					/>
@@ -93,7 +109,7 @@ export default function Mails() {
 								color: "#555555",
 							}}
 						>
-							{isAddressesLoading ? "Loading..." : addresses?.[0].email}
+							{isAddressesLoading ? "Loading..." : currentAddress}
 						</Text>
 					</DashedRoundedBox>
 				</Pressable>
@@ -152,7 +168,7 @@ export default function Mails() {
 							width: "80%",
 							alignItems: "center",
 							justifyContent: "center",
-							marginTop: 20
+							marginTop: 20,
 						}}
 					>
 						<Text
@@ -176,7 +192,9 @@ export default function Mails() {
 						/>
 					))
 				)}
-				{!emails?.length && <Text style={{ marginTop: 20 }}>No emails found</Text>}
+				{!emails?.length && (
+					<Text style={{ marginTop: 20 }}>No emails found</Text>
+				)}
 			</View>
 		</View>
 	);

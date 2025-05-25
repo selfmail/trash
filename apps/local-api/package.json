@@ -1,14 +1,9 @@
 {
-  "name": "api",
-  "type": "module",
+  "name": "local-api",
   "scripts": {
     "dev": "bun run --hot src/index.ts"
   },
   "dependencies": {
-    "@better-auth/expo": "^1.2.8",
-    "@better-fetch/fetch": "^1.1.18",
-    "better-auth": "^1.2.8",
-    "consola": "^3.4.2",
     "hono": "^4.7.10",
     "zod": "^3.25.28",
     "db": "workspace:*"

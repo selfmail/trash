@@ -24,8 +24,10 @@ import { Glur } from "./Glur";
 export function GlurryModal({
 	onClose,
 	addresses,
+	setCurrentAddress,
 }: {
 	onClose: () => void;
+	setCurrentAddress: (addressId: string) => void;
 	addresses: {
 		userId: string;
 		id: string;
@@ -37,7 +39,13 @@ export function GlurryModal({
 	const theme = useColorScheme();
 
 	const close = () => {
-		ref.current?.animateToZero().then(onClose);
+		try {
+			ref.current?.animateToZero();
+		} catch (err) {
+			console.log(err);
+		} finally {
+			onClose();
+		}
 	};
 
 	return (
@@ -78,10 +86,13 @@ export function GlurryModal({
 				>
 					{addresses.map((address) => (
 						<Pressable
-						key={address.id}>
-							<Text
-								style={{ color: "#555", fontSize: 24, fontWeight: "600" }}
-							>
+							onPress={() => {
+								setCurrentAddress(address.email);
+								close();
+							}}
+							key={address.id}
+						>
+							<Text style={{ color: "#555", fontSize: 24, fontWeight: "600" }}>
 								{address.email}
 							</Text>
 						</Pressable>
@@ -98,10 +109,7 @@ export function GlurryModal({
 						justifyContent: "center",
 					}}
 				>
-					<Animated.View
-						entering={FadeInDown}
-						exiting={FadeOutDown.duration(100)}
-					>
+					<Animated.View entering={FadeInDown}>
 						<Pressable
 							hitSlop={16}
 							onPress={close}

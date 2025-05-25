@@ -79,12 +79,14 @@ model Address {
 
 model Email {
   id        String    @id @default(cuid())
+
   from      String
-  to        String
   subject   String
   body      String
-  createdAt DateTime
+
+  createdAt DateTime  @default(now())
   readAt    DateTime?
+
   address   Address   @relation(fields: [addressId], references: [id], onDelete: Cascade)
   addressId String
   userId    String

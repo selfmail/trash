@@ -1,9 +1,9 @@
 import consola from "consola"
+import { db } from "db";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { z } from "zod";
 import { auth } from "../lib/auth.js";
-import { db } from "../lib/db.js";
 
 const app = new Hono();
 
