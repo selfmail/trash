@@ -49,3 +49,29 @@ export default {
 	port: 4001,
 	fetch: app.fetch,
 };
+
+app.post("/api/check-address", async (c) => {
+	const body = await c.req.json()
+
+	const parse = await z.object({
+		email: z.string().email().endsWith("@trash.company")
+	}).safeParseAsync(body)
+
+	if (!parse.success) {
+		return c.json(parse.error.issues, 400)
+	}
+
+  const address = await db.address.findUnique({
+    where: {
+      email: parse.data.email
+    }
+  })
+
+  if (!address) {
+    return c.json({ error: "Address not found" }, 400)
+  }
+
+  return c.json({ success: true })
+})
+
+	
