@@ -8,28 +8,29 @@ import { authClient } from "@/src/lib/auth-client";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { Link, Redirect, useRouter } from "expo-router";
-import React, {  useState } from "react";
+import React, { useState } from "react";
 import { Pressable } from "react-native";
 import { queryClient } from "../_layout";
 
 export default function Mails() {
 	const router = useRouter();
 	const { data: session } = authClient.useSession();
+	const [modalVisible, setModalVisible] = useState(false);
 
+	// Only fetch addresses if we have a session
+	const { data: addresses, isLoading: isAddressesLoading, error } = useAddresses(
+		session?.user?.id ?? "",
+	);
+
+	// Early return if no session
 	if (!session) {
 		return <Redirect href="/auth/login" />;
 	}
 
-	const [modalVisible, setModalVisible] = useState(false);
-
-	const { data: addresses, isLoading: isAddressesLoading } = useAddresses(
-		session.user.id,
-	);
-
-	if (addresses?.length === 0) {
-		return <Redirect href="/(tabs)/addresses/create" />;
+	if (error) {
+		return <Text>Error: {error.message}</Text>;
 	}
-
+	
 	if (!addresses && isAddressesLoading) {
 		return <Text>Loading...</Text>;
 	}
@@ -37,14 +38,25 @@ export default function Mails() {
 		console.log("no addresses");
 		return <Redirect href="/(tabs)/addresses/create" />;
 	}
-	if (addresses?.length === 0) {
+	if (addresses.length === 0) {
 		return <Redirect href="/(tabs)/addresses/create" />;
 	}
 
-	const { data: emails, isLoading: isEmailsLoading } = useEmails(
+	const { data: emails, isLoading: isEmailsLoading, error: errorEmails, refetch: refetchEmails } = useEmails(
 		addresses[0].id,
 		session.user.id,
 	);
+
+	if (errorEmails) {
+		return <Text>Error Emails: {errorEmails.message}</Text>;
+	}
+
+	if (!emails && isEmailsLoading) {
+		return <Text>Loading...</Text>;
+	}
+	if (!emails) {
+		return <Text>No emails found</Text>;
+	}
 
 	return (
 		<View
@@ -127,9 +139,10 @@ export default function Mails() {
 					<Pressable
 						hitSlop={10}
 						onPress={() => {
-							queryClient.invalidateQueries({
-								queryKey: ["addresses", session.user.id],
-							});
+
+							Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
+							refetchEmails()
+
 						}}
 					>
 						<Feather name="refresh-ccw" size={14} color="#555555" />
@@ -167,6 +180,7 @@ export default function Mails() {
 						/>
 					))
 				)}
+				{!emails?.length && <Text style={{ marginTop: 20 }}>No emails found</Text>}
 			</View>
 		</View>
 	);

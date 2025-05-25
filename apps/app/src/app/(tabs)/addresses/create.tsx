@@ -47,10 +47,6 @@ export default function CreateAddressScreen() {
 				email: parse.data,
 				userId: session.user.id,
 			});
-			// Invalidate and refetch the addresses query
-			await queryClient.invalidateQueries({
-				queryKey: ["addresses", session.user.id],
-			});
 
 			Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
 

@@ -1,18 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
 
 export const useAddresses = (userId: string) => {
-    return  useQuery({
+    return useQuery({
         queryKey: ["addresses", userId],
         queryFn: async () => {
-            const res = await fetch("http://localhost:4000/api/addresses", {
+            const res = await fetch(`http://localhost:4000/api/addresses/${userId}`, {
                 method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    userId
-                })
             });
+
+            if (!res.ok) {
+                throw new Error('Failed to fetch addresses');
+            }
 
             return await res.json() as {
                 userId: string;
@@ -21,4 +19,4 @@ export const useAddresses = (userId: string) => {
             }[];
         }
     });
-}
+};

@@ -11,12 +11,10 @@ app.on(["POST", "GET"], "/api/auth/*", (c) => {
 	return auth.handler(c.req.raw);
 });
 
-app.get("/api/addresses", async (c) => {
-	const body = await c.req.json();
+app.get("/api/addresses/:userId", async (c) => {
+	const userId = c.req.param("userId");
 
-	const parse = await z.object({
-		userId: z.string()
-	}).safeParseAsync(body)
+	const parse = await z.string().safeParseAsync(userId)
 
 	if (!parse.success) {
 		return c.json(parse.error.issues, 400);
@@ -24,22 +22,23 @@ app.get("/api/addresses", async (c) => {
 
 	const addresses = await db.address.findMany({
 		where: {
-			userId: parse.data.userId
+			userId: parse.data
 		}
 	});
 
-	consola.log(`Found ${addresses.length} addresses for user ${parse.data.userId}`)
+	consola.log(`Found ${addresses.length} addresses for user ${parse.data}`)
 
 	return c.json(addresses);
 });
 
-app.get("/api/emails", async (c) => {
-	const body = await c.req.json();
+app.get("/api/emails/:userId/:addressId", async (c) => {
+	const userId = c.req.param("userId");
+	const addressId = c.req.param("addressId");
 
 	const parse = await z.object({
 		userId: z.string(),
 		addressId: z.string()
-	}).safeParseAsync(body)
+	}).safeParseAsync({ userId, addressId })
 
 	if (!parse.success) {
 		return c.json(parse.error.issues, 400);
