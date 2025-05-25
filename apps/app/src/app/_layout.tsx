@@ -7,8 +7,7 @@ import { PostHogProvider } from "posthog-react-native";
 import React from "react";
 import { useEffect } from "react";
 import "react-native-reanimated";
-import * as SecureStore from "expo-secure-store";
-import { Platform } from "react-native";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
 export {
@@ -20,7 +19,6 @@ export const unstable_settings = {
 	// Ensure that reloading on `/modal` keeps a back button present.
 	initialRouteName: "(tabs)",
 };
-
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -49,22 +47,26 @@ export default function RootLayout() {
 	return <RootLayoutNav />;
 }
 
+export const queryClient = new QueryClient();
+
 function RootLayoutNav() {
 	return (
-		<SafeAreaProvider>
-			<SafeAreaView style={{ backgroundColor: "white" }} />
-			<PostHogProvider
-				apiKey={process.env.EXPO_PUBLIC_POSTHOG_API_KEY}
-				options={{
-					host: "https://eu.i.posthog.com",
-				}}
-			>
-				<ThemeProvider value={DefaultTheme}>
-					<Stack screenOptions={{ headerShown: false }}>
-						<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-					</Stack>
-				</ThemeProvider>
-			</PostHogProvider>
-		</SafeAreaProvider>
+		<QueryClientProvider client={queryClient}>
+			<SafeAreaProvider>
+				<SafeAreaView style={{ backgroundColor: "white" }} />
+				<PostHogProvider
+					apiKey={process.env.EXPO_PUBLIC_POSTHOG_API_KEY}
+					options={{
+						host: "https://eu.i.posthog.com",
+					}}
+				>
+					<ThemeProvider value={DefaultTheme}>
+						<Stack screenOptions={{ headerShown: false }}>
+							<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+						</Stack>
+					</ThemeProvider>
+				</PostHogProvider>
+			</SafeAreaProvider>
+		</QueryClientProvider>
 	);
 }

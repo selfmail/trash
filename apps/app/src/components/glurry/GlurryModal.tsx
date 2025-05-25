@@ -12,9 +12,9 @@ import Animated, {
 	FadeInDown,
 	FadeOut,
 	FadeOutDown,
-  useAnimatedProps,
-  useSharedValue,
-  withTiming,
+	useAnimatedProps,
+	useSharedValue,
+	withTiming,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Text } from "../Themed";
@@ -23,8 +23,14 @@ import { Glur } from "./Glur";
 
 export function GlurryModal({
 	onClose,
+	addresses,
 }: {
 	onClose: () => void;
+	addresses: {
+		userId: string;
+		id: string;
+		email: string;
+	}[];
 }) {
 	const { bottom } = useSafeAreaInsets();
 	const ref = React.useRef<{ animateToZero: () => void }>(null);
@@ -42,7 +48,7 @@ export function GlurryModal({
 			visible
 			onRequestClose={close}
 		>
-			<Animated.View  style={{ flex: 1 }}  exiting={FadeOut.duration(100)}>
+			<Animated.View style={{ flex: 1 }} exiting={FadeOut.duration(100)}>
 				<AnimateInBlur
 					style={StyleSheet.absoluteFill}
 					intensity={70}
@@ -70,17 +76,16 @@ export function GlurryModal({
 						alignItems: "center",
 					}}
 				>
-					<Text style={{
-            color: "#555",
-            fontSize: 24,
-            fontWeight: "600",
-          }}>henri@trash.company</Text>
-					<Text style={{
-            color: "#555",
-            marginTop: 8,
-            fontSize: 24,
-            fontWeight: "600",
-          }}>354jdfso@trash.company</Text>
+					{addresses.map((address) => (
+						<Pressable
+						key={address.id}>
+							<Text
+								style={{ color: "#555", fontSize: 24, fontWeight: "600" }}
+							>
+								{address.email}
+							</Text>
+						</Pressable>
+					))}
 				</View>
 
 				<View
@@ -93,7 +98,10 @@ export function GlurryModal({
 						justifyContent: "center",
 					}}
 				>
-					<Animated.View entering={FadeInDown} exiting={FadeOutDown.duration(100)}>
+					<Animated.View
+						entering={FadeInDown}
+						exiting={FadeOutDown.duration(100)}
+					>
 						<Pressable
 							hitSlop={16}
 							onPress={close}

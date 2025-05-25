@@ -1,3 +1,4 @@
+import consola from "consola"
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { z } from "zod";
@@ -26,6 +27,8 @@ app.get("/api/addresses", async (c) => {
 			userId: parse.data.userId
 		}
 	});
+
+	consola.log(`Found ${addresses.length} addresses for user ${parse.data.userId}`)
 
 	return c.json(addresses);
 });
@@ -60,16 +63,25 @@ app.post("/api/addresses/create", async (c) => {
 		email: z.string(),
 	}).safeParseAsync(body)
 
+
 	if (!parse.success) {
 		return c.json(parse.error.issues, 400);
 	}
 
+	const email = parse.data.email.toLowerCase()
+
 	const address = await db.address.create({
 		data: {
 			userId: parse.data.userId,
-			email: parse.data.email
+			email: email
 		}
 	});
+
+	if (!address) {
+		return c.json({ error: "Error while creating address: it's probably already taken" }, 500);
+	}
+
+	consola.log(`New address created: ${email}`)
 
 	return c.json(address);
 });

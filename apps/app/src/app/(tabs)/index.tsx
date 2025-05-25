@@ -2,21 +2,49 @@ import { Text, View } from "@/src/components/Themed";
 import { GlurryModal } from "@/src/components/glurry/GlurryModal";
 import Item from "@/src/components/mail/item";
 import DashedRoundedBox from "@/src/components/ui/dashed-box";
+import { useAddresses } from "@/src/hooks/use-addresses";
+import { useEmails } from "@/src/hooks/use-emails";
 import { authClient } from "@/src/lib/auth-client";
+import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import { Link, Redirect, useFocusEffect, useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import { Link, Redirect, useRouter } from "expo-router";
+import React, {  useState } from "react";
 import { Pressable } from "react-native";
+import { queryClient } from "../_layout";
 
 export default function Mails() {
 	const router = useRouter();
 	const { data: session } = authClient.useSession();
-	useEffect(() => {
-		if (!session) {
-			router.replace("/auth/login");
-		}
-	}, [session, router.replace]);
+
+	if (!session) {
+		return <Redirect href="/auth/login" />;
+	}
+
 	const [modalVisible, setModalVisible] = useState(false);
+
+	const { data: addresses, isLoading: isAddressesLoading } = useAddresses(
+		session.user.id,
+	);
+
+	if (addresses?.length === 0) {
+		return <Redirect href="/(tabs)/addresses/create" />;
+	}
+
+	if (!addresses && isAddressesLoading) {
+		return <Text>Loading...</Text>;
+	}
+	if (!addresses) {
+		console.log("no addresses");
+		return <Redirect href="/(tabs)/addresses/create" />;
+	}
+	if (addresses?.length === 0) {
+		return <Redirect href="/(tabs)/addresses/create" />;
+	}
+
+	const { data: emails, isLoading: isEmailsLoading } = useEmails(
+		addresses[0].id,
+		session.user.id,
+	);
 
 	return (
 		<View
@@ -34,7 +62,12 @@ export default function Mails() {
 					justifyContent: "center",
 				}}
 			>
-				{modalVisible && <GlurryModal onClose={() => setModalVisible(false)} />}
+				{modalVisible && (
+					<GlurryModal
+						addresses={addresses || []}
+						onClose={() => setModalVisible(false)}
+					/>
+				)}
 				<Pressable
 					onPress={() => {
 						Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
@@ -50,32 +83,91 @@ export default function Mails() {
 								color: "#555555",
 							}}
 						>
-							yh679j@trash.company
+							{isAddressesLoading ? "Loading..." : addresses?.[0].email}
 						</Text>
 					</DashedRoundedBox>
 				</Pressable>
 			</View>
 			<View style={{ alignItems: "center", marginTop: 20 }}>
-				<Item
-					id="1"
-					text="Please verify your email address to continue to your account."
-					image="https://www.redditstatic.com/emaildigest/reddit-logo.svg"
-					company="Reddit"
-				/>
-				<Item
-					id="2"
-					text="Please verify your email address to continue to your account."
-					image="https://www.redditstatic.com/emaildigest/reddit-logo.svg"
-					company="Reddit"
-				/>
-				<Item
-					id="4"
-					text="Please verify your email address to continue to your account."
-					image="https://www.redditstatic.com/emaildigest/reddit-logo.svg"
-					company="Reddit"
-				/>
+				<View
+					style={{
+						display: "flex",
+						flexDirection: "row",
+						width: "80%",
+						alignItems: "center",
+						justifyContent: "space-between",
+					}}
+				>
+					<Pressable
+						hitSlop={10}
+						onPress={() => {
+							router.push("/(tabs)/addresses/create");
+						}}
+					>
+						<View
+							style={{
+								display: "flex",
+								flexDirection: "row",
+								alignItems: "center",
+							}}
+						>
+							<Feather name="plus" size={14} color="#555555" />
+							<Text
+								style={{
+									marginLeft: 5,
+									fontSize: 14,
+									fontWeight: "500",
+									color: "#555555",
+								}}
+							>
+								Create a new address
+							</Text>
+						</View>
+					</Pressable>
+					<Pressable
+						hitSlop={10}
+						onPress={() => {
+							queryClient.invalidateQueries({
+								queryKey: ["addresses", session.user.id],
+							});
+						}}
+					>
+						<Feather name="refresh-ccw" size={14} color="#555555" />
+					</Pressable>
+				</View>
+				{isEmailsLoading ? (
+					<View
+						style={{
+							display: "flex",
+							flexDirection: "row",
+							width: "80%",
+							alignItems: "center",
+							justifyContent: "center",
+							marginTop: 20
+						}}
+					>
+						<Text
+							style={{
+								fontSize: 14,
+								fontWeight: "500",
+								color: "#555555",
+							}}
+						>
+							Loading...
+						</Text>
+					</View>
+				) : (
+					emails?.map((email) => (
+						<Item
+							key={email.id}
+							id={email.id}
+							text={email.body}
+							image={email.from}
+							company={email.from}
+						/>
+					))
+				)}
 			</View>
-			<Link href="/(tabs)/addresses/create">Create a new address</Link>
 		</View>
 	);
 }
