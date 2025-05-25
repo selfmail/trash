@@ -22,6 +22,12 @@ export default function Mails() {
 		session?.user?.id ?? "",
 	);
 
+	// Only fetch emails if we have addresses
+	const { data: emails, isLoading: isEmailsLoading, error: errorEmails, refetch: refetchEmails } = useEmails(
+		addresses?.[0]?.id ?? "",
+		session?.user?.id ?? "",
+	);
+
 	// Early return if no session
 	if (!session) {
 		return <Redirect href="/auth/login" />;
@@ -42,20 +48,12 @@ export default function Mails() {
 		return <Redirect href="/(tabs)/addresses/create" />;
 	}
 
-	const { data: emails, isLoading: isEmailsLoading, error: errorEmails, refetch: refetchEmails } = useEmails(
-		addresses[0].id,
-		session.user.id,
-	);
-
 	if (errorEmails) {
 		return <Text>Error Emails: {errorEmails.message}</Text>;
 	}
 
 	if (!emails && isEmailsLoading) {
 		return <Text>Loading...</Text>;
-	}
-	if (!emails) {
-		return <Text>No emails found</Text>;
 	}
 
 	return (
@@ -139,10 +137,8 @@ export default function Mails() {
 					<Pressable
 						hitSlop={10}
 						onPress={() => {
-
 							Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
-							refetchEmails()
-
+							refetchEmails();
 						}}
 					>
 						<Feather name="refresh-ccw" size={14} color="#555555" />

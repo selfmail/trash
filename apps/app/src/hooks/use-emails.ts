@@ -4,7 +4,7 @@ export const useEmails = (addressId: string, userId: string) => {
     return useQuery({
         queryKey: ["emails", addressId, userId],
         queryFn: async () => {
-            const res = await fetch(`http://localhost:4000/api/emails/${userId}/${addressId}`, {
+            const res = await fetch(`${process.env.EXPO_PUBLIC_API_DOMAIN}/api/emails/${userId}/${addressId}`, {
                 method: "GET",
             });
 
