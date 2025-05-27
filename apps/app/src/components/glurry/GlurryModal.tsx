@@ -27,7 +27,7 @@ export function GlurryModal({
 	setCurrentAddress,
 }: {
 	onClose: () => void;
-	setCurrentAddress: (addressId: string) => void;
+	setCurrentAddress: (addressId: string, email: string) => void;
 	addresses: {
 		userId: string;
 		id: string;
@@ -87,7 +87,7 @@ export function GlurryModal({
 					{addresses.map((address) => (
 						<Pressable
 							onPress={() => {
-								setCurrentAddress(address.email);
+								setCurrentAddress(address.id, address.email);
 								close();
 							}}
 							key={address.id}

@@ -8,6 +8,10 @@ export const useEmails = (addressId: string, userId: string) => {
                 method: "GET",
             });
 
+            if (!res.ok) {
+                throw new Error('Failed to fetch emails');
+            }
+
             return await res.json() as {
                 userId: string;
                 id: string;

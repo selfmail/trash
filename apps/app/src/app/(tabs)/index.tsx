@@ -17,6 +17,7 @@ export default function Mails() {
 	const { data: session } = authClient.useSession();
 	const [modalVisible, setModalVisible] = useState(false);
 	const [currentAddress, setCurrentAddress] = useState<string | undefined>();
+	const [currentEmail, setCurrentEmail] = useState<string | undefined>();
 
 	// Only fetch addresses if we have a session
 	const {
@@ -60,7 +61,8 @@ export default function Mails() {
 	}
 
 	if (!currentAddress) {
-		setCurrentAddress(addresses[0].email);
+		setCurrentAddress(addresses[0].id);
+		setCurrentEmail(addresses[0].email);
 	}
 
 	if (errorEmails) {
@@ -70,6 +72,7 @@ export default function Mails() {
 	if (!emails && isEmailsLoading) {
 		return <Text>Loading...</Text>;
 	}
+
 
 	return (
 		<View
@@ -89,7 +92,10 @@ export default function Mails() {
 			>
 				{modalVisible && (
 					<GlurryModal
-						setCurrentAddress={setCurrentAddress}
+						setCurrentAddress={(id, email) => {
+							setCurrentAddress(id);
+							setCurrentEmail(email);
+						}}
 						addresses={addresses || []}
 						onClose={() => setModalVisible(false)}
 					/>
@@ -109,7 +115,7 @@ export default function Mails() {
 								color: "#555555",
 							}}
 						>
-							{isAddressesLoading ? "Loading..." : currentAddress}
+							{isAddressesLoading ? "Loading..." : currentEmail}
 						</Text>
 					</DashedRoundedBox>
 				</Pressable>
