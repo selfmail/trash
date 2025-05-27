@@ -38,9 +38,12 @@ export type Connection = {
 
     current_line: number,
 
+    parse_body: boolean;
+
 
     // transaction
     transaction: {
+        header: any;
         // unique id for this transaction
         uuid: string,
 

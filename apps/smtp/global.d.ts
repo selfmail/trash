@@ -10,6 +10,9 @@ declare global {
     interface Exports {
         // Hooks
 
+        // RCPT_TO hooks
+        hook_rcpt: (this: This, next: Next, connection: any) => void;
+
         // DATA hooks
         hook_data: (this: This, next: Next, connection: any) => void;
         hook_data_post: (this: This, next: Next, connection: any) => void;
@@ -26,3 +29,5 @@ declare global {
 
     var exports: Exports;
 }
+
+
