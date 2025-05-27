@@ -22,7 +22,9 @@ exports.hook_queue = async function (this, next: Next, connection: Connection) {
 		subject
 	})
 
-	axios.get("https://example.com")
+	const res = await axios.get("http://localhost:4001")
+
+	this.loginfo(res.data)
 
 
 

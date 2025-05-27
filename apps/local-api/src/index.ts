@@ -45,11 +45,6 @@ app.post("/api/receive", async (c) => {
 	return c.json({ success: true })
 })
 
-export default {
-	port: 4001,
-	fetch: app.fetch,
-};
-
 app.post("/api/check-address", async (c) => {
 	const body = await c.req.json()
 
@@ -74,4 +69,12 @@ app.post("/api/check-address", async (c) => {
   return c.json({ success: true })
 })
 
+app.get("/", (c) =>  {
+  return c.text("Working!")
+})
+
 	
+export default {
+	port: 4001,
+	fetch: app.fetch,
+};

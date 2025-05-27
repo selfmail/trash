@@ -7,9 +7,9 @@
   "type": "module",
   "scripts": {
     "build": "tsx ./scripts/compile.ts",
-    "start": "bun run build && haraka -c .",
-    "dev": "sudo env \"PATH=$PATH\" bun run build && sudo env \"PATH=$PATH\" haraka -c .",
-    "watch": "nodemon"
+    "start": "sudo env \"PATH=$PATH\" bun run build && sudo env \"PATH=$PATH\" haraka -c .",
+    "watch": "nodemon",
+    "dev:server": "nodemon"
   },
   "nodemonConfig": {
     "watch": [
@@ -27,7 +27,7 @@
       ".git/**/*"
     ],
     "ext": "ts,js,json,cfg,yaml",
-    "exec": "bun run dev",
+    "exec": "bun run start",
     "delay": 2000,
     "verbose": false,
     "restartable": "rs",
