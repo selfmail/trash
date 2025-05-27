@@ -5,6 +5,7 @@ import type { Next } from "./types/parameter.ts";
 
 declare global {
     var OK: undefined;
+    var DENY: undefined;
 
     // function, variables & objects which can be exported
     interface Exports {
