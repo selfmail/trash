@@ -1,6 +1,7 @@
 import { Text, View } from "@/src/components/Themed";
 import { GlurryModal } from "@/src/components/glurry/GlurryModal";
 import Item from "@/src/components/mail/item";
+import { GlurItem } from "@/src/components/top-glur";
 import DashedRoundedBox from "@/src/components/ui/dashed-box";
 import { useAddresses } from "@/src/hooks/use-addresses";
 import { useEmails } from "@/src/hooks/use-emails";
@@ -9,7 +10,8 @@ import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { Link, Redirect, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Pressable } from "react-native";
+import { Pressable, ScrollView } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { queryClient } from "../_layout";
 
 export default function Mails() {
@@ -18,6 +20,7 @@ export default function Mails() {
 	const [modalVisible, setModalVisible] = useState(false);
 	const [currentAddress, setCurrentAddress] = useState<string | undefined>();
 	const [currentEmail, setCurrentEmail] = useState<string | undefined>();
+	const insets = useSafeAreaInsets();
 
 	// Only fetch addresses if we have a session
 	const {
@@ -82,126 +85,140 @@ export default function Mails() {
 				height: "100%",
 			}}
 		>
-			<View
-				style={{
-					marginTop: 20,
-					width: "100%",
+			<ScrollView 
+				style={{ 
+					flex: 1,
+					width: "100%"
+				}}
+				contentContainerStyle={{
 					alignItems: "center",
-					justifyContent: "center",
+					paddingBottom: 20,
+					paddingTop: insets.top + 40,
 				}}
 			>
-				{modalVisible && (
-					<GlurryModal
-						setCurrentAddress={(id, email) => {
-							setCurrentAddress(id);
-							setCurrentEmail(email);
-						}}
-						addresses={addresses || []}
-						onClose={() => setModalVisible(false)}
-					/>
-				)}
-				<Pressable
-					onPress={() => {
-						Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
-						setModalVisible(true);
-					}}
-					hitSlop={10}
-				>
-					<DashedRoundedBox width={250} height={50}>
-						<Text
-							style={{
-								fontSize: 18,
-								fontWeight: "500",
-								color: "#555555",
-							}}
-						>
-							{isAddressesLoading ? "Loading..." : currentEmail}
-						</Text>
-					</DashedRoundedBox>
-				</Pressable>
-			</View>
-			<View style={{ alignItems: "center", marginTop: 20 }}>
 				<View
 					style={{
-						display: "flex",
-						flexDirection: "row",
-						width: "80%",
+						width: "100%",
 						alignItems: "center",
-						justifyContent: "space-between",
+						justifyContent: "center",
 					}}
 				>
-					<Pressable
-						hitSlop={10}
-						onPress={() => {
-							router.push("/(tabs)/addresses/create");
-						}}
-					>
-						<View
-							style={{
-								display: "flex",
-								flexDirection: "row",
-								alignItems: "center",
+					{modalVisible && (
+						<GlurryModal
+							setCurrentAddress={(id, email) => {
+								setCurrentAddress(id);
+								setCurrentEmail(email);
 							}}
-						>
-							<Feather name="plus" size={14} color="#555555" />
+							addresses={addresses || []}
+							onClose={() => setModalVisible(false)}
+						/>
+					)}
+					<Pressable
+						onPress={() => {
+							Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
+							setModalVisible(true);
+						}}
+						hitSlop={10}
+					>
+						<DashedRoundedBox width={250} height={50}>
 							<Text
 								style={{
-									marginLeft: 5,
-									fontSize: 14,
+									fontSize: 18,
 									fontWeight: "500",
 									color: "#555555",
 								}}
 							>
-								Create a new address
+								{isAddressesLoading ? "Loading..." : currentEmail}
 							</Text>
-						</View>
-					</Pressable>
-					<Pressable
-						hitSlop={10}
-						onPress={() => {
-							Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
-							refetchEmails();
-						}}
-					>
-						<Feather name="refresh-ccw" size={14} color="#555555" />
+						</DashedRoundedBox>
 					</Pressable>
 				</View>
-				{isEmailsLoading ? (
+
+				<View style={{ alignItems: "center", marginTop: 20, width: "100%" }}>
 					<View
 						style={{
 							display: "flex",
 							flexDirection: "row",
 							width: "80%",
 							alignItems: "center",
-							justifyContent: "center",
-							marginTop: 20,
+							justifyContent: "space-between",
 						}}
 					>
-						<Text
-							style={{
-								fontSize: 14,
-								fontWeight: "500",
-								color: "#555555",
+						<Pressable
+							hitSlop={10}
+							onPress={() => {
+								router.push("/(tabs)/addresses/create");
 							}}
 						>
-							Loading...
-						</Text>
+							<View
+								style={{
+									display: "flex",
+									flexDirection: "row",
+									alignItems: "center",
+								}}
+							>
+								<Feather name="plus" size={14} color="#555555" />
+								<Text
+									style={{
+										marginLeft: 5,
+										fontSize: 14,
+										fontWeight: "500",
+										color: "#555555",
+									}}
+								>
+									Create a new address
+								</Text>
+							</View>
+						</Pressable>
+						<Pressable
+							hitSlop={10}
+							onPress={() => {
+								Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
+								refetchEmails();
+							}}
+						>
+							<Feather name="refresh-ccw" size={14} color="#555555" />
+						</Pressable>
 					</View>
-				) : (
-					emails?.map((email) => (
-						<Item
-							key={email.id}
-							id={email.id}
-							text={email.body}
-							image={email.from}
-							company={email.from}
-						/>
-					))
-				)}
-				{!emails?.length && (
-					<Text style={{ marginTop: 20 }}>No emails found</Text>
-				)}
-			</View>
+
+					{isEmailsLoading ? (
+						<View
+							style={{
+								display: "flex",
+								flexDirection: "row",
+								width: "80%",
+								alignItems: "center",
+								justifyContent: "center",
+								marginTop: 20,
+							}}
+						>
+							<Text
+								style={{
+									fontSize: 14,
+									fontWeight: "500",
+									color: "#555555",
+								}}
+							>
+								Loading...
+							</Text>
+						</View>
+					) : (
+						emails?.map((email) => (
+							<Item
+								key={email.id}
+								id={email.id}
+								text={email.body}
+								image={email.from}
+								company={email.from}
+							/>
+						))
+					)}
+					{!emails?.length && (
+						<Text style={{ marginTop: 20 }}>No emails found</Text>
+					)}
+				</View>
+			</ScrollView>
+			<GlurItem direction="top" style={{ zIndex: 100 }} />
 		</View>
 	);
 }

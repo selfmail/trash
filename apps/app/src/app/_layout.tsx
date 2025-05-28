@@ -8,7 +8,8 @@ import React from "react";
 import { useEffect } from "react";
 import "react-native-reanimated";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import { GlurItem } from "../components/top-glur";
 
 export {
 	// Catch any errors thrown by the Layout component.
@@ -50,10 +51,10 @@ export default function RootLayout() {
 export const queryClient = new QueryClient();
 
 function RootLayoutNav() {
+	const inset = useSafeAreaInsets()
 	return (
 		<QueryClientProvider client={queryClient}>
 			<SafeAreaProvider>
-				<SafeAreaView style={{ backgroundColor: "white" }} />
 				<PostHogProvider
 					apiKey={process.env.EXPO_PUBLIC_POSTHOG_API_KEY}
 					options={{
