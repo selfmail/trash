@@ -7,7 +7,8 @@ export default function Item({
 	text,
 	image,
 	company,
-}: { text: string; image: string; company: string; id: string }) {
+}: { text: string; image: string | null; company: string; id: string }) {
+	const domain = company.split("@")[1];
 	return (
 		<Pressable
 			onPress={() => {
@@ -32,18 +33,20 @@ export default function Item({
 						backgroundColor: "transparent",
 					}}
 				>
-					<Image
-						style={{
-							width: 20,
-							height: 20,
-						}}
-						source={image}
-						contentFit="cover"
-						transition={1000}
-					/>
+					{image && (
+						<Image
+							style={{
+								width: 20,
+								height: 20,
+							}}
+							source={image}
+							contentFit="cover"
+							transition={1000}
+						/>
+					)}
 					<Text
 						style={{
-							marginLeft: 10,
+							marginLeft: image ? 10:0,
 							backgroundColor: "transparent",
 							fontSize: 18,
 							fontWeight: "500",

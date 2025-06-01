@@ -19,6 +19,7 @@ export const useEmails = (addressId: string, userId: string) => {
                 from: string;
                 to: string;
                 subject: string;
+                image: string | null;
                 body: string;
                 createdAt: Date;
                 readAt: Date | null;

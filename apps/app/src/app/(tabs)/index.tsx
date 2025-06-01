@@ -207,8 +207,8 @@ export default function Mails() {
 							<Item
 								key={email.id}
 								id={email.id}
-								text={email.body}
-								image={email.from}
+								text={email.subject}
+								image={email.image}
 								company={email.from}
 							/>
 						))
