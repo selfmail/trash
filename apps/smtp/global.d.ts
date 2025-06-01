@@ -1,5 +1,5 @@
-
 // globals.d.ts
+import { parse } from "path";
 import type { This } from "../../types/this.js";
 import type { Next } from "./types/parameter.ts";
 
@@ -30,5 +30,4 @@ declare global {
 
     var exports: Exports;
 }
-
 

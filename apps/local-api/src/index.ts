@@ -1,11 +1,29 @@
+import { resolveTxt } from 'node:dns/promises';
 import { db } from 'db'
 import { Hono } from 'hono'
 import { z } from 'zod'
 
 const app = new Hono()
 
+// get Bimi Image for 
+async function getBimiRecord(domain: string) {
+  try {
+    const records = await resolveTxt(`default._bimi.${domain}`);
+    for (const record of records) {
+      const txt = record.join('');
+      if (txt.startsWith("v=BIMI1;")) {
+        const match = txt.match(/l=([^;]+);?/);
+        return match ? match[1] : null;
+      }
+    }
+    return null;
+  } catch (err: any) {
+    console.error("Error while trying to get Bimi Record:", err.message);
+    return null;
+  }
+}
+
 app.post("/api/receive", async (c) => {
-  console.log("Received Request!")
 	const body = await c.req.json()
 
   const parse = await z.object({
@@ -20,7 +38,6 @@ app.post("/api/receive", async (c) => {
     return c.json(parse.error.issues, 400)
   }
 
-  console.log("Got new Email")
 
   const address = await db.address.findUnique({
     where: {
@@ -32,11 +49,14 @@ app.post("/api/receive", async (c) => {
     return c.json({ error: "Address not found" }, 400)
   }
 
-  console.log("Checked the address")
+  const domain = parse.data.from.split("@")[0]
+
+  const img = await getBimiRecord(domain)
 
   const email = await db.email.create({
     data: {
       addressId: address.id,
+      image: img,
       userId: address.userId,
       from: parse.data.from,
       subject: parse.data.subject,
@@ -48,7 +68,6 @@ app.post("/api/receive", async (c) => {
     return c.json({ error: "Error while creating email" }, 500)
   }
 
-  console.log("Created Email")
 
 	return c.json({ success: true })
 })

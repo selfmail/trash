@@ -84,6 +84,8 @@ model Email {
   subject   String
   body      String
 
+  image String?
+
   createdAt DateTime  @default(now())
   readAt    DateTime?
 

@@ -1,78 +1,43 @@
 export type Next = (code?: undefined | null) => void
 
-export type Connection = {
-    // unqie id for this connection
-    uuid: string,
+// types/haraka.ts
 
-    // remote
+export interface ParsedEmail {
+    name: (() => string) | string;
+    address: string;
+}
+
+export interface AddressObject {
+    address(): string;
+}
+
+export interface Header {
+    get(name: string): string | undefined;
+}
+
+export interface BodyPart {
+    content_type: string;
+    bodytext: string;
+}
+
+export interface Body {
+    bodytext?: string;
+    children?: BodyPart[];
+}
+
+export interface Transaction {
+    parse_body?: boolean;
+    mail_from: AddressObject;
+    rcpt_to: AddressObject[];
+    header: Header;
+    body: Body;
+}
+
+export interface Connection {
+    transaction: Transaction;
     remote: {
-        ip: string,
-        host: string,
-        is_private: boolean,
-        is_local: boolean,
-    },
-
-    // local
-    local: {
-        ip: string,
-        host: string,
-        port: number,
-    },
-
-    // proxy
-    proxy: {
-        ip: string,
-        allowed: boolean,
-        type: null | "haproxy"
-    },
-
-    // hello
-    hello: {
-        verb: "EHLO" | "HELO",
-        host: string,
-    },
-
-    notes: any,
-
-    relaying: boolean,
-
-    current_line: number,
-
-    parse_body: boolean;
-
-
-    // transaction
-    transaction: {
-        header: any;
-        // unique id for this transaction
-        uuid: string,
-
-        // a nodejs readable stream for the message object
-        message_stream: any,
-
-        // number of bytes in the message after DATA
-        data_bytes: number,
-        
-        notes: any,
-
-        mail_from: {
-            address: () => string,
-            host: () => string,
-            user: () => string,
-            domain: () => string,
-        },
-        rcpt_to: {
-            address: () => string,
-            host: () => string,
-            user: () => string,
-            domain: () => string,
-        }[],
-        body: {
-            children: {
-                bodytext: () => string,
-                body: () => string,
-                header: () => string,
-            }[],
-        },
-    },
+        ip: string;
+        host: string;
+    };
+    notes: Record<string, any>;
 }
