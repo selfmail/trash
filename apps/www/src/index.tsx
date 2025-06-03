@@ -1,24 +1,25 @@
-import { type BunRequest, serve } from "bun";
-import { renderToReadableStream } from "react-dom/server";
-import Login from "./pages/login";
-import { createPages } from "./utils/create-pages";
+import { serve } from "bun";
+import consola  from "consola";
+import { createPages } from "./utils/get-pages";
 import { createRoutes } from "./utils/get-routes";
 
 const pages = await createPages();
 const routes = await createRoutes()
-serve({
+
+const server = serve({
 	routes: {
         "/": (req) => {
-            if (!req.cookies.get("trash-company-session")) {
-                return Response.redirect(new URL("/auth/login", req.url))
-            }
             return new Response("hey!")
         },
 		...Object.fromEntries(
 			routes.map((r) => [r.path, r.handler])
 		),
-	
-		
+
+		...Object.fromEntries(
+			pages.map((r) => [r.path, r.handler])
+		),
 	},
 	hostname: "0.0.0.0",
 });
+
+consola.info(`Server running at http://localhost:${server.port}`);

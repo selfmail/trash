@@ -5,7 +5,6 @@ export function route<Path extends string>(
   method: "GET" | "POST" | "PUT" | "DELETE",
   handler: (req: BunRequest<Path>) => Response 
 ) {
-  console.log(JSON.stringify(path))
   return {
     path,
     handler: {
